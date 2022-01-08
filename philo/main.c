@@ -20,27 +20,41 @@ int check_ptr(void *ptr)
 	return (0);
 }
 
+
 //phil
-void	*ft_phil(void *p)
+void	*f_phil(void *p)
 {
 	t_phil	*phil = (t_phil *)p;
-	t_room *room = phil->room;
+	// t_room *room = phil->room;
 	gettimeofday(&phil->t1, NULL);
-	printf("Philosoph is alive\n");
+
+	printf("Philosoph %d is alive\n", phil->n);
 	while (1)
 	{
-		gettimeofday(&phil->t2, NULL);
-		printf("%ld, %d\n", phil->t2.tv_sec - phil->t1.tv_sec, phil->t2.tv_usec - phil->t1.tv_usec);
-		printf("Philosoph %d is thinking\n", phil->n);
-
-		printf("Philosoph %d is eating in %d times\n", phil->n, phil->n_e);
-		usleep(room->t_eat);
-		phil->n_e++;
-		printf("Philosoph %d is sleeping\n", phil->n);
-		usleep(room->t_sleep);
+		do_get(phil);
+		do_drop(phil, phil->room);
+		do_eat(phil, phil->room);
+		do_think(phil, phil->room);
+		do_sleep(phil, phil->room);
 	}
+
 	return (NULL);
 }
+void *f_watch(void *ptr)
+{
+	t_room *room;
+	room = (t_room *)ptr;
+
+	return (0);
+}
+
+// void *f_fork(void *ptr)
+// {
+// 	t_room *room;
+// 	room = (t_room *)ptr;
+
+// 	return (0);
+// }
 
 //init_room
 t_room		*init_room(int ac, char **av)
@@ -72,17 +86,28 @@ t_room		*init_room(int ac, char **av)
 	{
 		room->phils[i].n = i + 1;
 		room->phils[i].room = room;
+		room->forks[i].room = room;
 		pthread_mutex_init(&room->forks[i].mu, NULL);
 		i++;
 	}
-	i = 0;
-	
-	
-	
-	
-	
 	return (room);
 }
+
+
+
+int init_pthread(t_room *room)
+{
+	int i = 0;
+
+	pthread_create(&room->watch, NULL, f_watch, room);
+	while (i < room->n_phils)
+	{
+		pthread_create(&room->phils[i].tr, NULL, f_phil, &room->phils[i]);
+		i++;
+	}
+	return 0;
+}
+
 
 //main
 int	main(int ac, char **av)
@@ -109,12 +134,8 @@ int	main(int ac, char **av)
 	}
 
 	i = 0;
-	while (i < room->n_phils)
-	{
-		pthread_create(&room->phils[i].tr, NULL, ft_phil, &room->phils[i]);
-		i++;
-	}
-	sleep(19);
-	exit(0);
+	init_pthread(room);
+	
+	sleep(5);
 	return (0);
 }

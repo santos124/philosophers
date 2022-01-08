@@ -24,34 +24,47 @@ typedef struct timeval t_time;
 
 //phil
 typedef struct s_phil {
-	t_time		t1;
-	t_time		t2;
-	void		*room;
-	int			n;
-	int			n_e;
-	pthread_t	tr;
+	t_time			t1;
+	t_time			t2;
+	void			*room;
+	pthread_t		tr_l;
+	pthread_t		tr_r;
+	int				n;
+	int				n_e;
+	pthread_t		tr;
 }				t_phil;
 
 //fork
 typedef struct s_fork {
+	void			*room;
+	pthread_t		tr;
 	pthread_mutex_t	mu;
 	int				n;
+	int				use;
 }				t_fork;
 
 //room
 typedef struct s_room {
-	t_phil	*phils;
-	t_fork	*forks;
-	int		n_phils;
-	int		t_die;
-	int		t_eat;
-	int		t_sleep;
-	int		n_must_eat;
+	t_phil		*phils;
+	t_fork		*forks;
+	pthread_t	watch;
+	int			n_phils;
+	int			t_die;
+	int			t_eat;
+	int			t_sleep;
+	int			n_must_eat;
 }				t_room;
 
 
 int		ft_atoi(const char *str);
 void	*ft_calloc(size_t count, size_t size);
 size_t	ft_strlen(const char *str);
+int		do_get(t_phil *phil);
+int		do_drop(t_phil *phil, t_room *room);
+int		do_eat(t_phil *phil, t_room *room);
+int		do_think(t_phil *phil, t_room *room);
+int		do_sleep(t_phil *phil, t_room *room);
+void	*get_fork(void *ptr);
+int		drop_fork(int f, t_phil *phil, t_room *room);
 
 #endif

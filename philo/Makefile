@@ -2,7 +2,7 @@ NAME		=	philo
 HEADER		=	philo.h
 CFLAGS		=	-Wall -Werror -Wextra
 CC			=	clang
-SRC			=	main.c ft_atoi.c ft_calloc.c ft_strlen.c
+SRC			=	main.c ft_atoi.c ft_calloc.c ft_strlen.c do.c fork.c
 OBJ			=	$(SRC:.c=.o)
 
 all			:	$(NAME)
