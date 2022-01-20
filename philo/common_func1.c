@@ -1,25 +1,4 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   ft_atoi.c                                          :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: wadina <marvin@42.fr>                      +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/05/06 19:08:07 by wadina            #+#    #+#             */
-/*   Updated: 2021/05/11 20:41:37 by wadina           ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "philo.h"
-
-static int	ft_isdigit(int c)
-{
-	if (c >= '0' && c <= '9')
-	{
-		return (1);
-	}
-	return (0);
-}
 
 static int	ft_ok(char c)
 {
@@ -79,4 +58,30 @@ int	ft_atoi(const char *str)
 		i++;
 	}
 	return (num);
+}
+
+void	ft_bzero(void *s, size_t n)
+{	
+	ft_memset(s, 0, n);
+}
+
+void	*ft_memset(void *b, int c, size_t len)
+{	
+	unsigned int	i;
+
+	i = 0;
+	while (i < len)
+		((unsigned char *)b)[i++] = c;
+	return (b);
+}
+
+void	*ft_calloc(size_t count, size_t size)
+{
+	void	*arr;
+
+	arr = malloc(count * size);
+	if (arr == NULL)
+		return (arr);
+	ft_bzero(arr, count * size);
+	return (arr);
 }

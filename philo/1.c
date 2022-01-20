@@ -1,136 +1,102 @@
+// #include <stdio.h>
+// #include <sys/time.h>
+// #include <unistd.h>
+// # include	<pthread.h>
+// #include <stdlib.h>
+// typedef struct	s_all
+// {
+// 	pthread_t		tr;
+// 	pthread_t		tr2;
+// 	pthread_mutex_t	mu;
+// 	int				a;
+// }				t_all;
+
+// void *fn(void *ptr_raw)
+// {
+// 	t_all	*all = (t_all*)ptr_raw;
+// 	write(1, "START\n", 7);
+// 	pthread_mutex_lock(&all->mu);
+// 	write(1, "MID\n", 5);
+// 	sleep(2);
+// 	write(1, "END\n", 5);
+// 	pthread_mutex_unlock(&all->mu);
+	
+// 	return NULL;
+// }
+
+// int main()
+// {
+// 	t_all	*all = malloc(sizeof(t_all));
+
+// 	pthread_mutex_init(&all->mu, NULL);
+// 	pthread_create(&all->tr, NULL, fn, &all);
+// 	pthread_create(&all->tr2, NULL, fn, &all);
+// 	pthread_join(all->tr, NULL);
+// 	pthread_join(all->tr2, NULL);
+// 	printf("MAIN \n");
+// 	return 0;
+// }
+
 #include <stdio.h>
-#include <stdlib.h>
 #include <pthread.h>
-#include <conio.h>
- 
-#define ERROR_CREATE_THREAD -11
-#define ERROR_JOIN_THREAD   -12
-#define SUCCESS        0
- 
-void* helloWorld(void *args) {
-    printf("Hello from thread!\n");
-    return SUCCESS;
-}
- 
+#include <unistd.h>
+#include <errno.h>
 
- void	*ft_phil(void *p)
-{
-	t_phil	*phil = (t_phil *)p;
-	t_room *room = phil->room;
-	gettimeofday(&phil->t1, NULL);
+static int counter; // shared resource
+static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
-	printf("Philosoph %d is alive\n", phil->n);
-	while (1)
-	{
-		
+void incr_counter(void *p) {
+    do {
+		printf("PRIVET CONT!\n");
+        usleep(10); // Let's have a time slice between mutex locks
+        pthread_mutex_lock(&mutex);
+        counter++;
+        printf("%d\n", counter);
+        sleep(5);
+		printf("POKA CONT!\n");
 
-
-	//берем вилки
-		while (room->forks[phil->n - 1].use || room->forks[phil->n - 2].use)
-		{
-			gettimeofday(&phil->t2, NULL);
-			if (phil->t2.tv_usec - phil->t2.tv_usec > room->t_die)
-			{
-				printf("Philosoph %d is DEATH OT GOLODA\n", phil->n);
-			}
-		}
-
-		pthread_mutex_lock(&room->forks[phil->n - 1].mu);
-		room->forks[phil->n - 1].use = phil->n;
-		if (phil->n != 0)
-		{
-			pthread_mutex_lock(&room->forks[phil->n - 2].mu);
-			room->forks[phil->n - 2].use = phil->n;
-		}
-		else
-		{
-			pthread_mutex_lock(&room->forks[room->n_phils - 1].mu);
-			room->forks[room->n_phils - 1].use = phil->n;
-		}
-		printf("Philosoph %d is eating in %d times\n", phil->n, phil->n_e);
-		usleep(room->t_eat);
-
-	//кладем вилки
-		pthread_mutex_unlock(&room->forks[phil->n - 1].mu);
-		if (phil->n != 0)
-		{
-			pthread_mutex_unlock(&room->forks[phil->n - 2].mu);
-		}
-		else
-		{
-			pthread_mutex_unlock(&room->forks[room->n_phils - 1].mu);
-		}
-
-		phil->n_e++;
-
-		printf("Philosoph %d is sleeping\n", phil->n);
-		usleep(room->t_sleep);
-	}
-
-	return (NULL);
+        pthread_mutex_unlock(&mutex);
+    } while ( 1 );
 }
 
-//init_room
-t_room		*init_room(int ac, char **av)
-{
-	t_room	*room;
+void reset_counter(void *p) {
+    char buf[10];
+    int  num = 0;
+    int  rc;
+    pthread_mutex_lock(&mutex); // block mutex just to show message
+    printf("Enter the number and press 'Enter' to initialize the counter with new value anytime.\n");
+    // sleep(3);
+    pthread_mutex_unlock(&mutex); // unblock blocked mutex so another thread may work
+    do {
+		            
+		printf("PRIVET RESET!\n");
 
-	if (ac == 5)
-		write(1, "4 agrs\n", 8);
-	else
-		write(1, "5 args\n", 8);
-	room = malloc(sizeof(t_room));
-	if (!room)
-		return (NULL);
-	*room = (t_room){0};
-	room->n_phils = ft_atoi(av[1]);
-	room->t_die = ft_atoi(av[2]);
-	room->t_eat = ft_atoi(av[3]);
-	room->t_sleep = ft_atoi(av[4]);
-	if (ac == 6)
-		room->n_must_eat = ft_atoi(av[1]);
-	room->phils = ft_calloc(sizeof(t_phil), room->n_phils + 1);
-	if (!room->phils)
-		return (NULL);
-	room->forks = ft_calloc(sizeof(t_fork), room->n_phils + 1);
-	if (!room->forks)
-		return (NULL);
-	int i = 0;
-	while (i  < room->n_phils)
-	{
-		room->phils[i].n = i + 1;
-		room->phils[i].room = room;
-		pthread_mutex_init(&room->forks[i].mu, NULL);
-		i++;
-	}
-	i = 0;
-	
-	
-	
-	
-	
-	return (room);
+        if ( gets(buf) != buf ) return; // NO fool-protection ! Risk of overflow !
+        num = atoi(buf);
+        if ( (rc = pthread_mutex_trylock(&mutex)) == EBUSY ) {
+            printf("Mutex is already locked by another process.\nLet's lock mutex using pthread_mutex_lock().\n");
+            pthread_mutex_lock(&mutex);
+        } else if ( rc == 0 ) {
+            printf("WOW! You are on time! Congratulation!\n");
+        } else { 
+            printf("Error: %d\n", rc);
+            return;
+        }
+        counter = num;
+        printf("New value for counter is %d\n", counter);
+		printf("POKA RESET!\n");
+        pthread_mutex_unlock(&mutex);
+    } while ( 1 );
 }
 
-int main() {
-    pthread_t thread;
-    int status;
-    int status_addr;
- 
-    status = pthread_create(&thread, NULL, helloWorld, NULL);
-    if (status != 0) {
-        printf("main error: can't create thread, status = %d\n", status);
-        exit(ERROR_CREATE_THREAD);
-    }
-    printf("Hello from main!\n");
- 
-    status = pthread_join(thread, (void**)&status_addr);
-    if (status != SUCCESS) {
-        printf("main error: can't join thread, status = %d\n", status);
-        exit(ERROR_JOIN_THREAD);
-    }
- 
-    printf("joined with address %d\n", status_addr);
-    _getch();
+int main(int argc, char ** argv) {
+    pthread_t thread_1;
+    pthread_t thread_2;
+    counter = 0;
+
+    pthread_create(&thread_1, NULL, (void *)&incr_counter, NULL);
+    pthread_create(&thread_2, NULL, (void *)&reset_counter, NULL);
+
+    pthread_join(thread_2, NULL);
     return 0;
 }
