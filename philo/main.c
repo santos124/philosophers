@@ -47,7 +47,7 @@ void	*f_phil(void *p)
 		do_think(phil, phil->room);
 		while (room->forks[phil->l_f].use != phil->id || room->forks[phil->r_f].use != phil->id)
 		{
-			// usleep(phil->id * 10);
+			usleep((phil->id % 3) * 1000);
 			if (phil->state == DIE)
 				return (NULL);
 			pthread_create(&phil->tr_l, NULL, get_fork, phil);
@@ -189,6 +189,7 @@ int init_pthread(t_room *room)
 	gettimeofday(&room->t1, NULL);
 	while (i < room->n_phils)
 	{
+		usleep(100);
 		pthread_create(&room->phils[i].tr, NULL, f_phil, &room->phils[i]);
 		i++;
 	}
