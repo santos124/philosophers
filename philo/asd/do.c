@@ -6,22 +6,26 @@ uint64_t get_time(t_time t1, t_time t2)
 	return (t2.tv_sec * 1000 + (t2.tv_usec / 1000)) - (t1.tv_sec * 1000 + (t1.tv_usec / 1000));
 }
 
-void 	get_fork(t_phil *phil)
+void 	*get_fork(void *ptr)
 {
-	t_fork *forks = phil->room->forks;
-	pthread_mutex_lock(&phil->room->forks[phil->l_f].mu);
-	forks[phil->l_f].use = phil->id;
-	pthread_mutex_lock(&phil->mu);
-	phil->state = GET_FORK;
-	phil->status = "has taken a fork";
-	usleep(500);
+	t_phil *phil;
+	t_room *room;
 
-	pthread_mutex_lock(&phil->room->forks[phil->r_f].mu);
-	forks[phil->r_f].use = phil->id;
-	pthread_mutex_lock(&phil->mu);
+	phil = (t_phil *)ptr; 
+	room = (t_room *)phil->room;
+
+	pthread_mutex_lock(&room->forks[phil->l_f].mu);
+	room->forks[phil->l_f].use = phil->id;
 	phil->state = GET_FORK;
 	phil->status = "has taken a fork";
-	usleep(500);
+	printer(phil);
+	
+	pthread_mutex_lock(&room->forks[phil->r_f].mu);
+	room->forks[phil->r_f].use = phil->id;
+	phil->state = GET_FORK;
+	phil->status = "has taken a fork";
+	printer(phil);
+	return (NULL);
 }
 
 
@@ -30,7 +34,9 @@ int do_drop(t_phil *phil, t_room *room)
 {
 	
 	pthread_mutex_unlock(&room->forks[phil->r_f].mu);
+	room->forks[phil->r_f].use = 0;
 	pthread_mutex_unlock(&room->forks[phil->l_f].mu);
+	room->forks[phil->l_f].use = 0;
 	return 0;
 }
 
@@ -39,9 +45,9 @@ int do_think(t_phil *phil, t_room *room)
 
 	(void)phil;
 	(void)room;
-	pthread_mutex_lock(&phil->mu);
 	phil->state = THINK;
 	phil->status = "is thinking";
+	printer(phil);
 	return 0;
 }
 
@@ -51,13 +57,13 @@ int		do_eat(t_phil *phil, t_room *room)
 	(void)room;
 	
 	
-	gettimeofday(&phil->dinner, NULL);
+	gettimeofday(&phil->t1, NULL);
 
+	printer(phil);
 	phil->n_e++;
-
-	pthread_mutex_lock(&phil->mu);
 	phil->state = EAT;
 	phil->status = "is eating";
+	printer(phil);
 	usleep(room->t_eat);
 	return 0;
 }
@@ -67,9 +73,9 @@ int do_sleep(t_phil *phil, t_room *room)
 
 	(void)phil;
 	(void)room;
-	pthread_mutex_lock(&phil->mu);
 	phil->state = SLEEP;
 	phil->status = "is sleeping";
+	printer(phil);
 	usleep(room->t_sleep);
 	
 	return 0;

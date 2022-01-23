@@ -29,17 +29,10 @@ typedef struct timeval t_time;
 
 //phil
 typedef struct s_phil {
-	t_time			t1;
-	t_time			t2;
-	t_time			tf1;
-	t_time			tf2;
-	t_time			t_fork1;
-	t_time			t_fork2;
+	t_time			dinner;
+	t_time			check;
 
-	void			*room;
-	pthread_t		tr_l;
-	pthread_t		tr_r;
-	pthread_t		t_print;
+	struct s_room	*room;
 	int				state;
 	char			*status;
 	int				id;
@@ -48,6 +41,8 @@ typedef struct s_phil {
 	int				l_f;
 	int				r_f;
 	pthread_t		tr;
+	pthread_mutex_t	mu;
+	int				can_eat;
 }				t_phil;
 
 //fork
@@ -64,6 +59,9 @@ typedef struct	s_room {
 	t_phil			*phils;
 	t_fork			*forks;
 	pthread_t		palach;
+	pthread_t		serve;
+	pthread_t		pri;
+	
 	pthread_mutex_t	mu_print;
 	t_time			t1;
 	t_time			t2;
@@ -91,10 +89,10 @@ int		do_drop(t_phil *phil, t_room *room);
 int		do_eat(t_phil *phil, t_room *room);
 int		do_think(t_phil *phil, t_room *room);
 int		do_sleep(t_phil *phil, t_room *room);
-void 	*get_fork(void *ptr);
+void 	get_fork(t_phil *phil);
 void	*get_fork_r(void *ptr);
 int		drop_fork(int f, t_phil *phil, t_room *room);
-void	*printer(t_phil *phil);
+void	*printer(void *ptr);
 uint64_t get_time(t_time t1, t_time t2);
 
 
