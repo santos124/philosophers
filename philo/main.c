@@ -41,40 +41,44 @@ void	*f_phil(void *p)
 	t_phil	*phil = (t_phil *)p;
 	t_room *room = phil->room;
 	gettimeofday(&phil->t1, NULL);
-	// printf("PHIL %d, %ld\n", phil->n, phil->t1.tv_sec);
 	
-	while ((phil->n_e < room->n_must_eat && room->n_must_eat != -1)	|| room->n_must_eat == -1)
+	while ((phil->n_e < room->n_must_eat && room->n_must_eat != -1)	|| (room->n_must_eat == -1 && room->death != 1))
 	{
-		do_get(phil, room);
-		
-		do_eat(phil, phil->room);
-		
-		do_drop(phil, phil->room);
-		
-		do_sleep(phil, phil->room);
-		
-		if (phil->state == DIE)
-			return (NULL);
 		do_think(phil, phil->room);
+		while (room->forks[phil->l_f].use != phil->id || room->forks[phil->r_f].use != phil->id)
+		{
+			// usleep(phil->id * 10);
+			if (phil->state == DIE)
+				return (NULL);
+			pthread_create(&phil->tr_l, NULL, get_fork, phil);
+			pthread_join(phil->tr_l, NULL);
+			// pthread_create(&phil->tr_l, NULL, get_fork2, phil);
+			// pthread_join(phil->tr_l, NULL);
+			// usleep(5);
+		}
+		do_eat(phil, room);
+		do_drop(phil, room);
+		do_sleep(phil, phil->room);
 	}
 	
 	return (NULL);
 }
-void	printer(t_phil *phil)
+void	*printer(t_phil *phil)
 {
 	t_room	*room;
 
 	room = (t_room *)phil->room;
-	
-	pthread_mutex_lock(room->mu_print);
+	pthread_mutex_lock(&room->mu_print);
 	gettimeofday(&room->t2, NULL);
-	ft_putnbr_fd(((room->t2.tv_usec / 1000) + room->t2.tv_sec * 1000) - ((room->t1.tv_usec / 1000) + room->t1.tv_sec * 1000), 1);
-	ft_putstr_fd(" ", 1);
-	ft_putnbr_fd(phil->id, 1);
-	ft_putstr_fd(" ", 1);
-	ft_putstr_fd(phil->status, 1);
-	ft_putstr_fd("\n", 1);
-	pthread_mutex_unlock(room->mu_print);
+	printf("%llu %d %s\n", get_time(room->t1, room->t2), phil->id, phil->status);
+	// ft_putnbr_fd(get_time(room->t1, room->t2), 1);
+	// ft_putstr_fd(" ", 1);
+	// ft_putnbr_fd(phil->id, 1);
+	// ft_putstr_fd(" ", 1);
+	// ft_putstr_fd(phil->status, 1);
+	// ft_putstr_fd("\n", 1);
+	pthread_mutex_unlock(&room->mu_print);
+	return (NULL);
 }
 
 int		some_dead(t_room *room)
@@ -85,7 +89,11 @@ int		some_dead(t_room *room)
 	while (i < room->n_phils)
 	{
 		if (room->phils[i].state == DIE)
+		{
+			room->death = 1;
 			return (1);
+		}
+			
 		i++;
 	}
 	return (0);
@@ -101,6 +109,7 @@ void	*f_palach(void *ptr)
 	while (!some_dead(room))
 	{
 		i = 0;
+		usleep(100);
 		while (i < room->n_phils)
 		{
 			gettimeofday(&room->phils[i].t2, NULL);
@@ -118,7 +127,7 @@ void	*f_palach(void *ptr)
 				uint64_t a = (room->phils[i].t1.tv_usec / 1000) + (room->phils[i].t1.tv_sec * 1000);
 				printf("%llu - %llu = %llu | %llu\n",b, a, b - a, room->t_die / 1000);
 				room->phils[i].state = DIE;
-				room->phils[i].status = " is died";
+				room->phils[i].status = "died";
 				printer(&room->phils[i]);
 				exit(0);
 			}
@@ -129,25 +138,11 @@ void	*f_palach(void *ptr)
 	return (0);
 }
 
-// 1 641 736 519 772
-// 1 641 736 519 546=226
-// void *f_fork(void *ptr)
-// {
-// 	t_room *room;
-// 	room = (t_room *)ptr;
-
-// 	return (0);
-// }
-
 //init_room
 t_room		*init_room(int ac, char **av)
 {
 	t_room	*room;
 
-	// if (ac == 5)
-	// 	write(1, "4 agrs\n", 8);
-	// else
-	// 	write(1, "5 args\n", 8);
 	room = malloc(sizeof(t_room));
 	if (!room)
 		return (NULL);
@@ -181,8 +176,7 @@ t_room		*init_room(int ac, char **av)
 		pthread_mutex_init(&room->forks[i].mu, NULL);
 		i++;
 	}
-	room->mu_print = ft_calloc(1, sizeof(pthread_mutex_t));
-	pthread_mutex_init(room->mu_print, NULL);
+	pthread_mutex_init(&room->mu_print, NULL);
 	return (room);
 }
 
@@ -200,7 +194,7 @@ int init_pthread(t_room *room)
 	}
 	while (room->phils[room->n_phils - 1].t1.tv_sec == 0)
 	{
-		usleep(21);
+		usleep(1);
 	}
 	pthread_create(&room->palach, NULL, f_palach, room);
 	return 0;

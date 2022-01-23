@@ -1,56 +1,49 @@
 #include "philo.h"
 
-void	*get_fork_l(void *ptr)
+uint64_t get_time(t_time t1, t_time t2)
 {
-	t_phil *phil;
-	t_room *room;
 
-
-	phil = (t_phil *)ptr; 
-	room = (t_room *)phil->room;
-	pthread_mutex_lock(&room->forks[phil->ind].mu);
-	room->forks[phil->ind].use = phil->id;
-
-	while (room->forks[phil])
-	{
-		
-	}
-	return (0);
+	return (t2.tv_sec * 1000 + (t2.tv_usec / 1000)) - (t1.tv_sec * 1000 + (t1.tv_usec / 1000));
 }
 
-void	*get_fork_r(void *ptr)
+void 	*get_fork(void *ptr)
 {
 	t_phil *phil;
 	t_room *room;
 
 	phil = (t_phil *)ptr; 
 	room = (t_room *)phil->room;
-	if (phil->id == 1)
-		pthread_mutex_lock(&room->forks[room->n_phils - 1].mu);
-	else
-		pthread_mutex_lock(&room->forks[phil->id - 2].mu);
-	return (0);
-}
 
+	pthread_mutex_lock(&room->forks[phil->l_f].mu);
+	room->forks[phil->l_f].use = phil->id;
 
-int do_get(t_phil *phil, t_room *room)
-{
-	while (room->forks[phil->l_f].use != phil->ind || room->forks[phil->r_f].use != phil->ind)
+	gettimeofday(&phil->t_fork1, NULL);
+
+	while (room->forks[phil->r_f].use != 0)
 	{
-		pthread_create(&phil->tr_l, NULL, get_fork_l, phil);
-		pthread_join(phil->tr_l, NULL);
-		usleep(100);
+
+		usleep(phil->id);
+		gettimeofday(&phil->t_fork2, NULL);
+		if (get_time(phil->t_fork1, phil->t_fork2) > 50)
+		{
+			pthread_mutex_unlock(&room->forks[phil->l_f].mu);
+			room->forks[phil->l_f].use = 0;
+			return ((void*)1);
+		}
 	}
-	return 0;
+	pthread_mutex_lock(&room->forks[phil->r_f].mu);
+	room->forks[phil->r_f].use = phil->id;	
+	return (NULL);
 }
+
+
 
 int do_drop(t_phil *phil, t_room *room)
 {
-	pthread_mutex_unlock(&room->forks[phil->id - 1].mu);
-	if (phil->id == 1)
-		pthread_mutex_unlock(&room->forks[room->n_phils - 1].mu);
-	else
-		pthread_mutex_unlock(&room->forks[phil->id - 2].mu);
+	pthread_mutex_unlock(&room->forks[phil->l_f].mu);
+	room->forks[phil->l_f].use = 0;
+	pthread_mutex_unlock(&room->forks[phil->r_f].mu);
+	room->forks[phil->r_f].use = 0;
 	return 0;
 }
 
@@ -72,8 +65,10 @@ int		do_eat(t_phil *phil, t_room *room)
 	
 	
 	gettimeofday(&phil->t1, NULL);
-	// printf("%d t1=%lld\n", phil->n, (uint64_t)(phil->t1.tv_usec / 1000) + (phil->t1.tv_sec * 1000));
-	
+	phil->state = GET_FORK;
+	phil->status = "has taken a fork";
+	printer(phil);
+	printer(phil);
 	phil->n_e++;
 	phil->state = EAT;
 	phil->status = "is eating";

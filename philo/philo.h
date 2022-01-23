@@ -33,9 +33,13 @@ typedef struct s_phil {
 	t_time			t2;
 	t_time			tf1;
 	t_time			tf2;
+	t_time			t_fork1;
+	t_time			t_fork2;
+
 	void			*room;
 	pthread_t		tr_l;
 	pthread_t		tr_r;
+	pthread_t		t_print;
 	int				state;
 	char			*status;
 	int				id;
@@ -60,7 +64,7 @@ typedef struct	s_room {
 	t_phil			*phils;
 	t_fork			*forks;
 	pthread_t		palach;
-	pthread_mutex_t	*mu_print;
+	pthread_mutex_t	mu_print;
 	t_time			t1;
 	t_time			t2;
 	int				n_phils;
@@ -68,6 +72,7 @@ typedef struct	s_room {
 	uint64_t			t_eat;
 	uint64_t			t_sleep;
 	int				n_must_eat;
+	int				death;
 	
 }				t_room;
 
@@ -86,10 +91,11 @@ int		do_drop(t_phil *phil, t_room *room);
 int		do_eat(t_phil *phil, t_room *room);
 int		do_think(t_phil *phil, t_room *room);
 int		do_sleep(t_phil *phil, t_room *room);
-void	*get_fork_l(void *ptr);
+void 	*get_fork(void *ptr);
 void	*get_fork_r(void *ptr);
 int		drop_fork(int f, t_phil *phil, t_room *room);
-void	printer(t_phil *phil);
+void	*printer(t_phil *phil);
+uint64_t get_time(t_time t1, t_time t2);
 
 
 #endif
