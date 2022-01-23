@@ -119,8 +119,8 @@ void	*f_palach(void *ptr)
 			gettimeofday(&room->phils[i].check, NULL);
 			if (get_time(room->phils[i].dinner, room->phils[i].check) >= room->t_die / 1000)
 			{
-				uint64_t b = (room->phils[i].check.tv_usec / 1000) + (room->phils[i].check.tv_sec * 1000);
-				uint64_t a = (room->phils[i].dinner.tv_usec / 1000) + (room->phils[i].dinner.tv_sec * 1000);
+				unsigned long long b = (room->phils[i].check.tv_usec / 1000) + (room->phils[i].check.tv_sec * 1000);
+				unsigned long long a = (room->phils[i].dinner.tv_usec / 1000) + (room->phils[i].dinner.tv_sec * 1000);
 				printf("%llu - %llu = %llu | %llu\n",b, a, b - a, room->t_die / 1000);
 				pthread_mutex_lock(&room->phils[i].mu);
 				room->phils[i].state = DIE;

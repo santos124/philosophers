@@ -1,6 +1,6 @@
 #include "philo.h"
 
-uint64_t get_time(t_time t1, t_time t2)
+unsigned long long get_time(t_time t1, t_time t2)
 {
 
 	return (t2.tv_sec * 1000 + (t2.tv_usec / 1000)) - (t1.tv_sec * 1000 + (t1.tv_usec / 1000));

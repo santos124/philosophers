@@ -66,9 +66,9 @@ typedef struct	s_room {
 	t_time			t1;
 	t_time			t2;
 	int				n_phils;
-	uint64_t			t_die;
-	uint64_t			t_eat;
-	uint64_t			t_sleep;
+	unsigned long long			t_die;
+	unsigned long long			t_eat;
+	unsigned long long			t_sleep;
 	int				n_must_eat;
 	int				death;
 	
@@ -93,7 +93,7 @@ void 	get_fork(t_phil *phil);
 void	*get_fork_r(void *ptr);
 int		drop_fork(int f, t_phil *phil, t_room *room);
 void	*printer(void *ptr);
-uint64_t get_time(t_time t1, t_time t2);
+unsigned long long get_time(t_time t1, t_time t2);
 
 
 #endif
