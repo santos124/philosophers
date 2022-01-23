@@ -64,9 +64,9 @@ typedef struct	s_room {
 	t_time			t1;
 	t_time			t2;
 	int				n_phils;
-	uint64_t			t_die;
-	uint64_t			t_eat;
-	uint64_t			t_sleep;
+	unsigned long long			t_die;
+	unsigned long long			t_eat;
+	unsigned long long			t_sleep;
 	int				n_must_eat;
 	
 }				t_room;

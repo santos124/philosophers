@@ -104,18 +104,18 @@ void	*f_palach(void *ptr)
 		while (i < room->n_phils)
 		{
 			gettimeofday(&room->phils[i].t2, NULL);
-			if ((((uint64_t)(((room->phils[i].t2.tv_usec / 1000)
+			if ((((unsigned long long)(((room->phils[i].t2.tv_usec / 1000)
 			+ room->phils[i].t2.tv_sec * 1000)
 			- ((room->phils[i].t1.tv_usec / 1000)
 			+ room->phils[i].t1.tv_sec * 1000))
 			> room->t_die / 1000) && room->phils[i].n_e < room->n_must_eat
 				&& room->n_must_eat != -1)
-				|| (((uint64_t)(((room->phils[i].t2.tv_usec / 1000) + room->phils[i].t2.tv_sec * 1000)
+				|| (((unsigned long long)(((room->phils[i].t2.tv_usec / 1000) + room->phils[i].t2.tv_sec * 1000)
 				- ((room->phils[i].t1.tv_usec / 1000) + room->phils[i].t1.tv_sec * 1000))
 				>= (room->t_die / 1000)) && room->n_must_eat == -1))
 			{
-				uint64_t b = (room->phils[i].t2.tv_usec / 1000) + (room->phils[i].t2.tv_sec * 1000);
-				uint64_t a = (room->phils[i].t1.tv_usec / 1000) + (room->phils[i].t1.tv_sec * 1000);
+				unsigned long long b = (room->phils[i].t2.tv_usec / 1000) + (room->phils[i].t2.tv_sec * 1000);
+				unsigned long long a = (room->phils[i].t1.tv_usec / 1000) + (room->phils[i].t1.tv_sec * 1000);
 				printf("%llu - %llu = %llu | %llu\n",b, a, b - a, room->t_die / 1000);
 				room->phils[i].state = DIE;
 				room->phils[i].status = " is died";
