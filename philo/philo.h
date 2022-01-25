@@ -92,7 +92,7 @@ int		do_sleep(t_phil *phil, t_room *room);
 void 	get_fork(t_phil *phil);
 void	*get_fork_r(void *ptr);
 int		drop_fork(int f, t_phil *phil, t_room *room);
-void	*printer(void *ptr);
+// void	*printer(void *ptr);
 unsigned long long get_time(t_time t1, t_time t2);
 
 

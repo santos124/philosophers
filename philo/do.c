@@ -11,17 +11,33 @@ void 	get_fork(t_phil *phil)
 	t_fork *forks = phil->room->forks;
 	pthread_mutex_lock(&phil->room->forks[phil->l_f].mu);
 	forks[phil->l_f].use = phil->id;
-	pthread_mutex_lock(&phil->mu);
+	pthread_mutex_lock(&phil->room->mu_print);
 	phil->state = GET_FORK;
 	phil->status = "has taken a fork";
-	usleep(500);
+	gettimeofday(&phil->room->t2, NULL);
+	ft_putnbr_fd(get_time(phil->room->t1, phil->room->t2), 1);
+	ft_putstr_fd(" ", 1);
+	ft_putnbr_fd(phil->id, 1);
+	ft_putstr_fd(" ", 1);
+	ft_putstr_fd(phil->status, 1);
+	ft_putstr_fd("\n", 1);
+	phil->state = 0;
+	pthread_mutex_unlock(&phil->room->mu_print);
 
 	pthread_mutex_lock(&phil->room->forks[phil->r_f].mu);
 	forks[phil->r_f].use = phil->id;
-	pthread_mutex_lock(&phil->mu);
+	pthread_mutex_lock(&phil->room->mu_print);
 	phil->state = GET_FORK;
 	phil->status = "has taken a fork";
-	usleep(500);
+	gettimeofday(&phil->room->t2, NULL);
+	ft_putnbr_fd(get_time(phil->room->t1, phil->room->t2), 1);
+	ft_putstr_fd(" ", 1);
+	ft_putnbr_fd(phil->id, 1);
+	ft_putstr_fd(" ", 1);
+	ft_putstr_fd(phil->status, 1);
+	ft_putstr_fd("\n", 1);
+	phil->state = 0;
+	pthread_mutex_unlock(&phil->room->mu_print);
 }
 
 
@@ -39,9 +55,18 @@ int do_think(t_phil *phil, t_room *room)
 
 	(void)phil;
 	(void)room;
-	pthread_mutex_lock(&phil->mu);
+	pthread_mutex_lock(&phil->room->mu_print);
 	phil->state = THINK;
 	phil->status = "is thinking";
+	gettimeofday(&phil->room->t2, NULL);
+	ft_putnbr_fd(get_time(phil->room->t1, phil->room->t2), 1);
+	ft_putstr_fd(" ", 1);
+	ft_putnbr_fd(phil->id, 1);
+	ft_putstr_fd(" ", 1);
+	ft_putstr_fd(phil->status, 1);
+	ft_putstr_fd("\n", 1);
+	phil->state = 0;
+	pthread_mutex_unlock(&phil->room->mu_print);
 	return 0;
 }
 
@@ -55,10 +80,20 @@ int		do_eat(t_phil *phil, t_room *room)
 
 	phil->n_e++;
 
-	pthread_mutex_lock(&phil->mu);
+	pthread_mutex_lock(&phil->room->mu_print);
 	phil->state = EAT;
 	phil->status = "is eating";
 	usleep(room->t_eat);
+	gettimeofday(&phil->room->t2, NULL);
+	ft_putnbr_fd(get_time(phil->room->t1, phil->room->t2), 1);
+	ft_putstr_fd(" ", 1);
+	ft_putnbr_fd(phil->id, 1);
+	ft_putstr_fd(" ", 1);
+	ft_putstr_fd(phil->status, 1);
+	ft_putstr_fd("\n", 1);
+	phil->state = 0;
+	pthread_mutex_unlock(&phil->room->mu_print);
+
 	return 0;
 }
 
@@ -67,10 +102,18 @@ int do_sleep(t_phil *phil, t_room *room)
 
 	(void)phil;
 	(void)room;
-	pthread_mutex_lock(&phil->mu);
+	pthread_mutex_lock(&phil->room->mu_print);
 	phil->state = SLEEP;
 	phil->status = "is sleeping";
 	usleep(room->t_sleep);
-	
+	gettimeofday(&phil->room->t2, NULL);
+	ft_putnbr_fd(get_time(phil->room->t1, phil->room->t2), 1);
+	ft_putstr_fd(" ", 1);
+	ft_putnbr_fd(phil->id, 1);
+	ft_putstr_fd(" ", 1);
+	ft_putstr_fd(phil->status, 1);
+	ft_putstr_fd("\n", 1);
+	phil->state = 0;
+	pthread_mutex_unlock(&phil->room->mu_print);
 	return 0;
 }

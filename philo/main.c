@@ -55,35 +55,36 @@ void	*f_phil(void *p)
 	}
 	return (NULL);
 }
-void	*printer(void *ptr)
-{
-	t_room	*room;
-	int		i;
+// void	*printer(void *ptr)
+// {
+// 	t_room	*room;
+// 	int		i;
 
-	room = (t_room *)ptr;
-	i = 0;
-	while (1)
-	{
-		i = 0;
-		while (i < room->n_phils)
-		{
-			if (room->phils[i].state != 0)
-			{
-				gettimeofday(&room->t2, NULL);
-				ft_putnbr_fd(get_time(room->t1, room->t2), 1);
-				ft_putstr_fd(" ", 1);
-				ft_putnbr_fd(room->phils[i].id, 1);
-				ft_putstr_fd(" ", 1);
-				ft_putstr_fd(room->phils[i].status, 1);
-				ft_putstr_fd("\n", 1);
-				room->phils[i].state = 0;
-				pthread_mutex_unlock(&(room->phils[i].mu));
-			}
-			i++;
-		} 
-	}
-	return (NULL);
-}
+// 	room = (t_room *)ptr;
+// 	i = 0;
+// 	while (1)
+// 	{
+// 		i = 0;
+// 		while (i < room->n_phils)
+// 		{
+// 			if (room->phils[i].state != 0)
+// 			{
+// 				gettimeofday(&room->t2, NULL);
+// 				ft_putnbr_fd(get_time(room->t1, room->t2), 1);
+// 				ft_putstr_fd(" ", 1);
+// 				ft_putnbr_fd(room->phils[i].id, 1);
+// 				ft_putstr_fd(" ", 1);
+// 				ft_putstr_fd(room->phils[i].status, 1);
+// 				ft_putstr_fd("\n", 1);
+// 				room->phils[i].state = 0;
+// 				pthread_mutex_unlock(&(room->phils[i].mu));
+// 			}
+// 			i++;
+// 		} 
+// 	}
+// 	return (NULL);
+// }
+
 
 int		some_dead(t_room *room)
 {
@@ -122,9 +123,18 @@ void	*f_palach(void *ptr)
 				unsigned long long b = (room->phils[i].check.tv_usec / 1000) + (room->phils[i].check.tv_sec * 1000);
 				unsigned long long a = (room->phils[i].dinner.tv_usec / 1000) + (room->phils[i].dinner.tv_sec * 1000);
 				printf("%llu - %llu = %llu | %llu\n",b, a, b - a, room->t_die / 1000);
-				pthread_mutex_lock(&room->phils[i].mu);
+				pthread_mutex_lock(&room->mu_print);
 				room->phils[i].state = DIE;
 				room->phils[i].status = "died";
+				gettimeofday(&room->phils[i].room->t2, NULL);
+				ft_putnbr_fd(get_time(room->t1, room->t2), 1);
+				ft_putstr_fd(" ", 1);
+				ft_putnbr_fd(room->phils[i].id, 1);
+				ft_putstr_fd(" ", 1);
+				ft_putstr_fd(room->phils[i].status, 1);
+				ft_putstr_fd("\n", 1);
+				room->phils[i].state = 0;
+				pthread_mutex_unlock(&room->mu_print);
 				exit(0);
 			}
 			i++;
@@ -244,7 +254,7 @@ int init_pthread(t_room *room)
 	
 	pthread_create(&room->serve, NULL, serve, room);
 	pthread_create(&room->palach, NULL, f_palach, room);
-	pthread_create(&room->pri, NULL, printer, room);
+	// pthread_create(&room->pri, NULL, printer, room);
 	
 	
 	return 0;
