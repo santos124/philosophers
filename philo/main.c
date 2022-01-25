@@ -12,27 +12,6 @@
 
 #include "philo.h"
 
-//check_ptr
-int		check_ptr(void *ptr)
-{
-	if (!ptr)
-		return (1);
-	return (0);
-}
-
-int		closer(t_room *room)
-{
-	int i = 0;
-	while (i < room->n_phils)
-	{
-		pthread_detach(room->phils[i].tr);
-		i++;
-	}
-	
-
-	return 0;
-}
-
 //phil
 void	*f_phil(void *p)
 {
@@ -43,10 +22,9 @@ void	*f_phil(void *p)
 	while (room->death != 1)
 	{
 		do_think(phil, phil->room);
-		while (!phil->can_eat)
-		{
-			usleep(1);
-		}
+		// while (!phil->can_eat)
+		// {
+		// }
 		get_fork(phil);
 		do_eat(phil, room);
 		phil->can_eat = 0;
@@ -55,35 +33,25 @@ void	*f_phil(void *p)
 	}
 	return (NULL);
 }
-// void	*printer(void *ptr)
-// {
-// 	t_room	*room;
-// 	int		i;
 
-// 	room = (t_room *)ptr;
-// 	i = 0;
-// 	while (1)
-// 	{
-// 		i = 0;
-// 		while (i < room->n_phils)
-// 		{
-// 			if (room->phils[i].state != 0)
-// 			{
-// 				gettimeofday(&room->t2, NULL);
-// 				ft_putnbr_fd(get_time(room->t1, room->t2), 1);
-// 				ft_putstr_fd(" ", 1);
-// 				ft_putnbr_fd(room->phils[i].id, 1);
-// 				ft_putstr_fd(" ", 1);
-// 				ft_putstr_fd(room->phils[i].status, 1);
-// 				ft_putstr_fd("\n", 1);
-// 				room->phils[i].state = 0;
-// 				pthread_mutex_unlock(&(room->phils[i].mu));
-// 			}
-// 			i++;
-// 		} 
-// 	}
-// 	return (NULL);
-// }
+void	*printer(void *ptr)
+{
+	t_phil	*phil = ptr;
+	t_room	*room = phil->room;
+	pthread_mutex_lock(&room->mu_print);
+	gettimeofday(&phil->room->t2, NULL);
+	// printf("%llu %d %s\n", get_time(phil->room->t1, phil->room->t2), phil->id, phil->status);
+	ft_putnbr_fd(get_time(phil->room->t1, phil->room->t2), 1);
+	write(1, " ", 1);
+	ft_putnbr_fd(phil->id, 1);
+	write(1, " ", 1);
+	ft_putstr_fd(phil->status, 1);
+	write(1, "\n", 1);
+	phil->state = 0;
+	pthread_mutex_unlock(&room->mu_print);
+
+	return (NULL);
+}
 
 
 int		some_dead(t_room *room)
@@ -98,7 +66,6 @@ int		some_dead(t_room *room)
 			room->death = 1;
 			return (1);
 		}
-			
 		i++;
 	}
 	return (0);
@@ -117,24 +84,21 @@ void	*f_palach(void *ptr)
 		usleep(1000);
 		while (i < room->n_phils)
 		{
+			// usleep(1);
 			gettimeofday(&room->phils[i].check, NULL);
 			if (get_time(room->phils[i].dinner, room->phils[i].check) >= room->t_die / 1000)
 			{
 				unsigned long long b = (room->phils[i].check.tv_usec / 1000) + (room->phils[i].check.tv_sec * 1000);
 				unsigned long long a = (room->phils[i].dinner.tv_usec / 1000) + (room->phils[i].dinner.tv_sec * 1000);
-				printf("%llu - %llu = %llu | %llu\n",b, a, b - a, room->t_die / 1000);
-				pthread_mutex_lock(&room->mu_print);
+				printf("phil[%d] %llu - %llu = %llu | %llu\n",i, b, a, b - a, room->t_die / 1000);
+				// ft_putnbr_fd();
+				// write(1, " ", 1);
+				// write(1, "\n", 1);
 				room->phils[i].state = DIE;
 				room->phils[i].status = "died";
-				gettimeofday(&room->phils[i].room->t2, NULL);
-				ft_putnbr_fd(get_time(room->t1, room->t2), 1);
-				ft_putstr_fd(" ", 1);
-				ft_putnbr_fd(room->phils[i].id, 1);
-				ft_putstr_fd(" ", 1);
-				ft_putstr_fd(room->phils[i].status, 1);
-				ft_putstr_fd("\n", 1);
-				room->phils[i].state = 0;
-				pthread_mutex_unlock(&room->mu_print);
+					pthread_create(&room->phils[i].tr, NULL, printer, &room->phils[i]);
+					pthread_detach(room->phils[i].tr);
+
 				exit(0);
 			}
 			i++;
@@ -145,49 +109,50 @@ void	*f_palach(void *ptr)
 	return (0);
 }
 
-void	*serve(void *ptr)
-{
-	t_room	*room;
-	int		i;
-	int		min;
-	room = (t_room *)ptr;
-	i = 0;
-	while (!some_dead(room))
-	{
-		i = 0;
-		min = 100500;
-		while (i < room->n_phils)
-		{
+// void	*serve(void *ptr)
+// {
+// 	t_room	*room;
+// 	int		i;
+// 	int		min;
+// 	room = (t_room *)ptr;
+// 	i = 0;
+// 	while (!some_dead(room))
+// 	{
+// 		usleep(500);
+// 		i = 0;
+// 		min = 100500;
+// 		while (i < room->n_phils)
+// 		{
 			
-			if (room->phils[i].n_e < min)
-				min = room->phils[i].n_e;
-			i++;
-		}
-		i = 0;
-		while (i < room->n_phils)
-		{
-			if (room->phils[i].n_e == min && room->phils[i].can_eat == 0 && i % 2 == 0)
-				room->phils[i].can_eat = 1;
-			i++;
-		}
-		while (room->phils[2].can_eat == 1 || room->phils[0].can_eat == 1)
-		{
-		}
-		i = 0;
-		while (i < room->n_phils)
-		{
-			if (room->phils[i].n_e == min && room->phils[i].can_eat == 0 && i % 2 == 1)
-				room->phils[i].can_eat = 1;
-			i++;
-		}
-		while (room->phils[3].can_eat == 1 || room->phils[1].can_eat == 1)
-		{
-		}
-	}
-	exit(0);
+// 			if (room->phils[i].n_e < min)
+// 				min = room->phils[i].n_e;
+// 			i++;
+// 		}
+// 		i = 0;
+// 		while (i < room->n_phils)
+// 		{
+// 			if (room->phils[i].n_e == min && room->phils[i].can_eat == 0 && i % 2 == 0)
+// 				room->phils[i].can_eat = 1;
+// 			i++;
+// 		}
+// 		while (room->phils[2].can_eat == 1 || room->phils[0].can_eat == 1)
+// 		{
+// 		}
+// 		i = 0;
+// 		while (i < room->n_phils)
+// 		{
+// 			if (room->phils[i].n_e == min && room->phils[i].can_eat == 0 && i % 2 == 1)
+// 				room->phils[i].can_eat = 1;
+// 			i++;
+// 		}
+// 		while (room->phils[3].can_eat == 1 || room->phils[1].can_eat == 1)
+// 		{
+// 		}
+// 	}
+// 	exit(0);
 
-	return (0);
-}
+// 	return (0);
+// }
 
 //init_room
 t_room		*init_room(int ac, char **av)
@@ -220,11 +185,25 @@ t_room		*init_room(int ac, char **av)
 		room->phils[i].ind = i;
 		room->phils[i].state = 0;
 		room->phils[i].room = room;
-		room->phils[i].l_f = room->phils[i].ind;
-		room->phils[i].r_f = room->phils[i].ind - 1;
-		pthread_mutex_init(&room->phils[i].mu, NULL);
-		if (i == 0)
-			room->phils[i].r_f = room->n_phils - 1;
+		if (i % 2 == 0)
+		{
+			if (i == 0)
+				room->phils[i].r_f = room->n_phils - 1;
+			else
+				room->phils[i].r_f = room->phils[i].ind - 1;
+			room->phils[i].l_f = room->phils[i].ind;
+		}
+		else
+		{
+			if (i == 0)
+				room->phils[i].l_f = room->n_phils - 1;
+			else
+				room->phils[i].l_f = room->phils[i].ind - 1;
+			room->phils[i].r_f = room->phils[i].ind;
+
+			pthread_mutex_init(&room->phils[i].mu, NULL);
+			
+		}
 		room->forks[i].room = room;
 		room->forks[i].use = 0;
 		pthread_mutex_init(&room->forks[i].mu, NULL);
@@ -249,12 +228,11 @@ int init_pthread(t_room *room)
 	
 	while (room->phils[room->n_phils - 1].dinner.tv_sec == 0)
 	{
-		usleep(1);
+		// usleep(1);
 	}
 	
-	pthread_create(&room->serve, NULL, serve, room);
+	// pthread_create(&room->serve, NULL, serve, room);
 	pthread_create(&room->palach, NULL, f_palach, room);
-	// pthread_create(&room->pri, NULL, printer, room);
 	
 	
 	return 0;
