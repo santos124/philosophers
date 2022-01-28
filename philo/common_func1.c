@@ -62,17 +62,7 @@ int	ft_atoi(const char *str)
 
 void	ft_bzero(void *s, size_t n)
 {	
-	ft_memset(s, 0, n);
-}
-
-void	*ft_memset(void *b, int c, size_t len)
-{	
-	unsigned int	i;
-
-	i = 0;
-	while (i < len)
-		((unsigned char *)b)[i++] = c;
-	return (b);
+	memset(s, 0, n);
 }
 
 void	*ft_calloc(size_t count, size_t size)
