@@ -31,7 +31,6 @@ void ft_death(t_room *room)
 			if (room->phils[i].n_e != room->n_must_eat && 
 				get_time(room->phils[i].dinner, room->death_t) >= room->t_die)
 			{
-				// printf("%llu - %llu =  %llu\n", get_ms(room->death_t), get_ms(room->phils[i].dinner), get_time(room->phils[i].dinner, room->death_t));
 				room->death = i;
 				room->phils[i].state = DIE;
 				room->phils[i].status = "died";

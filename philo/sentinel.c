@@ -53,7 +53,7 @@ void	*ft_sentinel(void *ptr)
 			room->phils[i].can_eat = 1;
 			i += 2;
 		}
-		while(check_eat(room))
+		while(check_eat(room) && room->death == -1)
 			usleep(500);
 		i = 1;
 		while (i < room->n_phils)
@@ -61,7 +61,7 @@ void	*ft_sentinel(void *ptr)
 			room->phils[i].can_eat = 1;
 			i += 2;
 		}
-		while(check_eat2(room))
+		while(check_eat2(room) && room->death == -1)
 			usleep(500);
 		last_men(room);
 		check_eat3(room);

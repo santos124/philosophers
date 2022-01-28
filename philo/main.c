@@ -12,10 +12,12 @@
 
 #include "philo.h"
 
-//phil
-
-
-static void ft_get_l_s_f(t_room *room, t_phil *phil)
+/*
+**
+**
+*/
+//asdasd
+static void	ft_get_f_s_f(t_room *room, t_phil *phil)
 {
 	if (phil->ind % 2 == 0)
 	{
@@ -72,10 +74,12 @@ static t_room		*init_room(int ac, char **av)
 		room->phils[i].state = 0;
 		room->phils[i].room = room;
 		ft_get_l_s_f(room, &room->phils[i]);
-		pthread_mutex_init(&(room->f_mu[i]), NULL);
+		if ((pthread_mutex_init(&(room->f_mu[i]), NULL)) != 0)
+			return (NULL);
 		i++;
 	}
-	pthread_mutex_init(&room->mu_print, NULL);
+	if ((pthread_mutex_init(&room->mu_print, NULL)) != 0)
+			return (NULL);
 	return (room);
 }
 
@@ -88,7 +92,8 @@ static int init_pthread(t_room *room)
 	i = 0;
 	while (i < room->n_phils)
 	{
-		pthread_create(&room->phils[i].tr, NULL, f_phil, &room->phils[i]);
+		if ((pthread_create(&room->phils[i].tr, NULL, f_phil, &room->phils[i])) != 0)
+			return (1);
 		i++;
 	}
 	milisleep(10);
@@ -101,7 +106,8 @@ static int init_pthread(t_room *room)
 		i++;
 	}
 	gettimeofday(&room->t1, NULL);
-	pthread_create(&room->sentinel_t, NULL, ft_sentinel, room);
+	if ((pthread_create(&room->sentinel_t, NULL, ft_sentinel, room)) != 0)
+			return (1);
 	ft_death(room);
 	return (0);
 }
@@ -126,10 +132,10 @@ void ft_free(t_room *room)
 				pthread_mutex_destroy(&room->f_mu[i]);
 				i++;
 			}
+			pthread_mutex_destroy(&room->mu_print);
 			free(room->f_mu);
 			room->f_mu = NULL;
 		}
-		
 		free(room);
 		room = NULL;
 	}
@@ -142,6 +148,7 @@ int		ft_exit(int status, t_room *room)
 		write(2, "Error\n", 24);
 	return (status);
 }
+
 int	main(int ac, char **av)
 {
 	t_room	*room;
@@ -154,7 +161,8 @@ int	main(int ac, char **av)
 	
 	if ((room = init_room(ac, av)) == NULL)
 		return (ft_exit(1, room));
-	init_pthread(room);
+	if ((init_pthread(room)) != 0)
+		return (ft_exit(2, room));
 	usleep(100);
 	pthread_join(room->sentinel_t, NULL);
 	
