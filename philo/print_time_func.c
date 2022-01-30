@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   print_time_func.c                                  :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: wadina <marvin@42.fr>                      +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/01/30 20:33:51 by wadina            #+#    #+#             */
+/*   Updated: 2022/01/30 20:33:52 by wadina           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philo.h"
 
 void	milisleep(int ms)
@@ -9,7 +21,7 @@ void	milisleep(int ms)
 	gettimeofday(&t2, NULL);
 	while (get_time(t1, t2) < (long long)ms)
 	{
-		usleep(100);
+		usleep(200);
 		gettimeofday(&t2, NULL);
 	}
 }
@@ -22,6 +34,7 @@ long long	get_time(t_time t1, t_time t2)
 
 void	ft_printer(t_phil *phil, t_room *room)
 {
+	pthread_mutex_lock(&room->mu_print);
 	gettimeofday(&phil->room->t2, NULL);
 	if (room->death == -1)
 	{
@@ -30,14 +43,13 @@ void	ft_printer(t_phil *phil, t_room *room)
 	}
 	else if (room->death == phil->ind && phil->state == DIE)
 	{
-		pthread_mutex_lock(&room->mu_print);
 		ft_putnbr_fd(get_time(phil->room->t1, phil->room->t2), 1);
 		write(1, " ", 1);
 		ft_putnbr_fd(phil->id, 1);
 		write(1, " ", 1);
 		ft_putstr_fd(phil->status, 1);
 		write(1, "\n", 1);
-		pthread_mutex_unlock(&room->mu_print);
 	}
+	pthread_mutex_unlock(&room->mu_print);
 	phil->state = 0;
 }

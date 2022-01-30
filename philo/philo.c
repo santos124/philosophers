@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   philo.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: wadina <marvin@42.fr>                      +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/01/30 20:33:36 by wadina            #+#    #+#             */
+/*   Updated: 2022/01/30 20:33:38 by wadina           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philo.h"
 
 static void	get_forks(t_phil *phil, t_room *room)
@@ -48,20 +60,16 @@ void	*f_phil(void *p)
 
 	phil = (t_phil *)p;
 	while (!phil->room->start)
-		usleep(100);
-	while (phil->room->death == -1)
+		usleep(50);
+	while (phil->room->death == -1 && phil->room->hungry == 1)
 	{
+		usleep(100);
 		do_think(phil, phil->room);
 		while (phil->can_eat != 1)
-			usleep(100);
+			usleep(200);
 		get_forks(phil, phil->room);
 		do_eat(phil, phil->room);
 		phil->can_eat = 0;
-		if (phil->n_e == phil->room->n_must_eat)
-		{
-			pthread_detach(phil->tr);
-			return (NULL);
-		}
 		do_sleep(phil, phil->room);
 	}
 	pthread_detach(phil->tr);

@@ -1,8 +1,8 @@
-NAME		=	philo
-HEADER		=	philo.h
+NAME		=	philo_bonus
+HEADER		=	philo_bonus.h
 CFLAGS		=	-Wall -Werror -Wextra -pthread
 CC			=	clang
-SRC			=	main.c common_func1.c common_func2.c print_time_func.c philo.c sentinel.c death.c init_room.c
+SRC			=	philo_bonus.c check_bonus.c eat_bonus.c exit_n_error_bonus.c init_bonus.c utils_bonus.c
 OBJ			=	$(SRC:.c=.o)
 
 all			:	$(NAME)

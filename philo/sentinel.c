@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   sentinel.c                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: wadina <marvin@42.fr>                      +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/01/30 20:34:27 by wadina            #+#    #+#             */
+/*   Updated: 2022/01/30 20:34:29 by wadina           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philo.h"
 
 static int	check_eat(t_room *room)
@@ -53,7 +65,7 @@ void	*ft_sentinel(void *ptr)
 	int		i;
 
 	room = ptr;
-	while (room->death == -1 && ft_hungry(room))
+	while (room->death == -1 && room->hungry == 1)
 	{
 		i = 0;
 		while (i < room->n_phils - 1)

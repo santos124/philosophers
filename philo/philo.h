@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   philo.h                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: wadina <marvin@42.fr>                      +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/01/30 20:33:26 by wadina            #+#    #+#             */
+/*   Updated: 2022/01/30 20:33:28 by wadina           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef PHILO_H
 # define PHILO_H
 # define THINK 1
@@ -43,6 +55,7 @@ typedef struct s_room {
 	int					n_must_eat;
 	int					death;
 	int					start;
+	int					hungry;
 }				t_room;
 
 int			ft_atoi(const char *str);

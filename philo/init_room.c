@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   init_room.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: wadina <marvin@42.fr>                      +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/01/30 20:29:30 by wadina            #+#    #+#             */
+/*   Updated: 2022/01/30 20:29:31 by wadina           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philo.h"
 
 static void	ft_get_f_s_f(t_room *room, t_phil *phil)
@@ -26,6 +38,7 @@ static int	init_phils_mutexes(t_room *room)
 
 	i = 0;
 	room->death = -1;
+	room->hungry = 1;
 	while (i < room->n_phils)
 	{
 		room->phils[i].can_eat = 0;

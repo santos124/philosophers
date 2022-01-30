@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   death.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: wadina <marvin@42.fr>                      +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2022/01/30 20:29:20 by wadina            #+#    #+#             */
+/*   Updated: 2022/01/30 20:30:19 by wadina           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philo.h"
 
 int	ft_hungry(t_room *room)
@@ -18,13 +30,15 @@ void	ft_death(t_room *room)
 {
 	int	i;
 
-	while ((room->death == -1) && ft_hungry(room))
+	room->hungry = ft_hungry(room);
+	while ((room->death == -1) && room->hungry == 1)
 	{
-		usleep(5000);
+		room->hungry = ft_hungry(room);
+		usleep(50);
 		i = 0;
 		while (i < room->n_phils)
 		{
-			usleep(50);
+			usleep(100);
 			gettimeofday(&room->death_t, NULL);
 			if (room->phils[i].n_e != room->n_must_eat
 				&& get_time(room->phils[i].dinner, room->death_t)
